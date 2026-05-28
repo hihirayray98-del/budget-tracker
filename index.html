@@ -5,572 +5,578 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>월 지출 관리</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #F7F5F0;
-    --surface: #FFFFFF;
-    --surface2: #F0EDE6;
-    --border: #E2DDD4;
-    --border2: #CBC6BB;
-    --text: #1A1814;
-    --text2: #6B6760;
-    --text3: #A8A49E;
-    --accent: #3D6B4F;
-    --accent-light: #EAF3DE;
-    --accent-text: #27500A;
-    --warn: #BA7517;
-    --warn-light: #FAEEDA;
-    --danger: #A32D2D;
-    --danger-light: #FCEBEB;
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
+:root {
+  --bg: #F8F8F8;
+  --surface: #FFFFFF;
+  --line: #DCDCDC;
+  --line2: #A0A0A0;
+  --text: #0A0A0A;
+  --text2: #666666;
+  --text3: #AAAAAA;
+  --sidebar-w: 50%;
+  --header-h: 52px;
+}
 
-  body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 0 0 60px;
-  }
+html, body {
+  font-family: 'IBM Plex Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
 
-  .top-bar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 20px 24px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+/* ── 헤더 ── */
+.header {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center;
+  padding: 0 28px; gap: 24px;
+  z-index: 100;
+}
+.header-title {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--text);
+}
+.month-nav { display: flex; align-items: center; gap: 10px; }
+.nav-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text2); font-size: 16px; line-height: 1;
+  padding: 2px 6px; transition: color 0.15s;
+}
+.nav-btn:hover { color: var(--text); }
+.month-label {
+  font-size: 12px; font-weight: 400; letter-spacing: 0.06em;
+  min-width: 80px; text-align: center; color: var(--text);
+}
+.sum-row { display: flex; gap: 0; margin-left: auto; }
+.sum-chip {
+  padding: 0 20px; text-align: right;
+  border-left: 1px solid var(--line);
+}
+.sum-chip:first-child { border-left: none; }
+.sum-chip-label { font-size: 9px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 1px; }
+.sum-chip-val { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; display: block; }
+.sum-chip-val.neg { color: var(--text2); }
 
-  .top-title {
-    font-family: 'Gowun Dodum', serif;
-    font-size: 20px;
-    color: var(--text);
-    margin-bottom: 14px;
-    letter-spacing: -0.02em;
-  }
+/* ── 레이아웃 ── */
+.body { display: flex; margin-top: var(--header-h); }
 
-  .month-nav {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+.sidebar {
+  width: var(--sidebar-w);
+  position: fixed; top: var(--header-h); left: 0; bottom: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
 
-  .nav-btn {
-    background: var(--surface2);
-    border: none;
-    border-radius: var(--radius-sm);
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text2);
-    font-size: 16px;
-    transition: background 0.15s;
-  }
-  .nav-btn:hover { background: var(--border); }
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1; min-width: 0;
+  background: var(--bg);
+}
 
-  .month-label {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    min-width: 100px;
-    text-align: center;
-  }
+/* ── 풀블리드 섹션 헤더 ── */
+.section-header {
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 18px 28px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.section-title {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3);
+  flex: 1;
+}
+.section-meta { font-size: 11px; color: var(--text2); }
 
-  .summary-wrap {
-    padding: 20px 20px 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
+/* ── 행(row) 기반 레이아웃 ── */
+.row {
+  display: flex; align-items: center;
+  padding: 13px 28px;
+  border-bottom: 1px solid var(--line);
+  gap: 12px;
+}
+.row:hover { background: #F4F4F4; }
+.row-label { flex: 1; font-size: 13px; color: var(--text); font-weight: 400; }
+.row-tag {
+  font-size: 10px; color: var(--text3);
+  letter-spacing: 0.06em; background: none;
+  padding: 0; margin-left: 6px;
+}
+.row-amount { font-size: 13px; color: var(--text2); font-weight: 300; white-space: nowrap; min-width: 80px; text-align: right; }
+.row-action { display: flex; gap: 6px; margin-left: 8px; }
+.btn-ghost {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; color: var(--text3); padding: 2px 6px;
+  border: 1px solid var(--line); border-radius: 999px;
+  font-family: inherit; transition: all 0.15s; white-space: nowrap;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--text2); }
+.btn-solid {
+  background: var(--text); border: 1px solid var(--text); border-radius: 999px;
+  font-size: 11px; font-weight: 500; color: #fff; padding: 4px 14px;
+  font-family: inherit; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.btn-solid:hover { background: #333; border-color: #333; }
 
-  .sum-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-  }
-  .sum-label {
-    font-size: 11px;
-    color: var(--text3);
-    margin-bottom: 6px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .sum-val {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .sum-val.ok { color: var(--accent); }
-  .sum-val.danger { color: var(--danger); }
+/* ── 카테고리 헤더 ── */
+.cat-header-row {
+  display: flex; align-items: center;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer; gap: 12px;
+  transition: background 0.12s;
+}
+.cat-header-row:hover { background: #F4F4F4; }
+.cat-header-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
+.cat-header-budget { font-size: 10px; color: var(--text3); margin-right: 4px; }
+.cat-header-remain { font-size: 13px; font-weight: 400; color: var(--text2); }
+.cat-header-remain.over { color: var(--text); font-weight: 500; }
+.chevron { font-size: 9px; color: var(--text3); transition: transform 0.2s; }
+.chevron.open { transform: rotate(180deg); }
 
-  .content {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 16px 20px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+/* ── 프로그레스 ── */
+.progress-line { height: 1px; background: var(--line); }
+.progress-fill { height: 100%; background: var(--text3); transition: width 0.4s; }
+.progress-fill.warn { background: var(--text2); }
+.progress-fill.over { background: var(--text); }
 
-  .section-label {
-    font-size: 11px;
-    color: var(--text3);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 8px 2px 4px;
-  }
+/* ── 지출 항목 ── */
+.entry-row {
+  display: flex; align-items: flex-start;
+  padding: 11px 28px 11px 40px;
+  border-bottom: 1px solid var(--line);
+  gap: 12px;
+}
+.entry-name { font-size: 13px; color: var(--text); flex: 1; }
+.entry-memo { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.entry-amount { font-size: 13px; color: var(--text2); min-width: 80px; text-align: right; white-space: nowrap; }
+.entry-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 14px; padding: 0 2px;
+  transition: color 0.15s; line-height: 1; align-self: center;
+}
+.entry-del:hover { color: var(--text); }
 
-  .cat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    transition: border-color 0.15s;
-  }
-  .cat-card:hover { border-color: var(--border2); }
+/* ── 빈 메시지 ── */
+.empty-row {
+  padding: 14px 28px 14px 40px;
+  font-size: 12px; color: var(--text3);
+  border-bottom: 1px solid var(--line);
+}
 
-  .cat-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 16px;
-    cursor: pointer;
-    user-select: none;
-  }
+/* ── 입력폼 ── */
+.add-form {
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  display: none;
+}
+.add-form.open { display: block; }
+.add-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.add-form-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+.add-input {
+  font-size: 12px; padding: 7px 12px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--bg); color: var(--text);
+  font-family: inherit; outline: none; transition: border-color 0.15s; width: 100%;
+}
+.add-input:focus { border-color: var(--text2); background: var(--surface); }
+.add-input.right { text-align: right; }
 
-  .cat-icon { font-size: 20px; width: 28px; flex-shrink: 0; }
-  .cat-name { font-size: 14px; font-weight: 600; flex: 1; color: var(--text); }
+/* ── 투두 ── */
+.todo-row {
+  display: flex; align-items: center;
+  padding: 11px 28px; border-bottom: 1px solid var(--line);
+  cursor: pointer; gap: 12px;
+}
+.todo-row:hover { background: #F4F4F4; }
+.todo-circle {
+  width: 14px; height: 14px; border: 1px solid var(--line2);
+  border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.todo-circle.checked { background: var(--text); border-color: var(--text); }
+.todo-circle.checked::after { content: ''; width: 6px; height: 6px; background: #fff; border-radius: 50%; }
+.todo-text { flex: 1; font-size: 13px; color: var(--text2); font-weight: 300; }
+.todo-text.done { text-decoration: line-through; opacity: 0.35; color: var(--text3); }
+.todo-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 14px; transition: color 0.15s; line-height: 1;
+}
+.todo-del:hover { color: var(--text); }
 
-  .cat-right { text-align: right; flex-shrink: 0; }
-  .cat-budget-lbl { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
-  .cat-remain {
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .cat-remain.ok { color: var(--accent); }
-  .cat-remain.warn { color: var(--warn); }
-  .cat-remain.danger { color: var(--danger); }
-  .cat-remain.neutral { color: var(--text2); }
+/* ── 고정비 편집 ── */
+.fixed-edit-form {
+  padding: 10px 28px 10px 40px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  display: none;
+}
+.fixed-edit-form.open { display: flex; gap: 6px; align-items: center; }
+.fixed-edit-input {
+  font-size: 12px; padding: 6px 12px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--bg); color: var(--text);
+  font-family: inherit; outline: none; transition: border-color 0.15s;
+}
+.fixed-edit-input:focus { border-color: var(--text2); }
+.fixed-edit-input.name { flex: 1; }
+.fixed-edit-input.tag { width: 120px; }
+.fixed-edit-input.amt { width: 110px; text-align: right; }
 
-  .chevron {
-    font-size: 12px;
-    color: var(--text3);
-    transition: transform 0.2s;
-    flex-shrink: 0;
-  }
-  .chevron.open { transform: rotate(180deg); }
-
-  .progress-bar {
-    height: 3px;
-    background: var(--border);
-    margin: 0 16px 0;
-  }
-  .progress-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.4s ease;
-  }
-  .fill-ok { background: var(--accent); }
-  .fill-warn { background: var(--warn); }
-  .fill-danger { background: var(--danger); }
-
-  .cat-body {
-    padding: 12px 16px 16px;
-    border-top: 1px solid var(--border);
-    display: none;
-  }
-  .cat-body.open { display: block; }
-
-  .entry-list { margin-bottom: 10px; }
-  .entry-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .entry-row:last-child { border-bottom: none; }
-  .entry-note { flex: 1; font-size: 13px; color: var(--text2); }
-  .entry-amount { font-size: 13px; font-weight: 600; color: var(--text); min-width: 80px; text-align: right; }
-  .entry-del {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text3);
-    font-size: 16px;
-    padding: 2px 4px;
-    border-radius: 4px;
-    line-height: 1;
-    transition: color 0.15s;
-  }
-  .entry-del:hover { color: var(--danger); }
-
-  .add-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-  }
-  .add-note {
-    flex: 1;
-    font-size: 13px;
-    padding: 8px 12px;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    background: var(--surface2);
-    color: var(--text);
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .add-note:focus { border-color: var(--accent); background: var(--surface); }
-  .add-amount {
-    width: 100px;
-    font-size: 13px;
-    padding: 8px 12px;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    background: var(--surface2);
-    color: var(--text);
-    font-family: inherit;
-    outline: none;
-    text-align: right;
-    transition: border-color 0.15s;
-  }
-  .add-amount:focus { border-color: var(--accent); background: var(--surface); }
-  .add-btn {
-    background: var(--accent);
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    color: white;
-    cursor: pointer;
-    white-space: nowrap;
-    font-family: inherit;
-    transition: opacity 0.15s;
-  }
-  .add-btn:hover { opacity: 0.85; }
-  .add-btn:active { opacity: 0.7; }
-
-  .fixed-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-  }
-  .fixed-item:last-child { border-bottom: none; }
-  .fixed-check {
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid var(--border2);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: background 0.15s, border-color 0.15s;
-  }
-  .fixed-check.checked {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-  .fixed-check.checked::after {
-    content: '✓';
-    color: white;
-    font-size: 11px;
-    font-weight: 700;
-  }
-  .fixed-name {
-    flex: 1;
-    font-size: 13px;
-    color: var(--text2);
-    transition: opacity 0.15s;
-  }
-  .fixed-name.done {
-    text-decoration: line-through;
-    opacity: 0.4;
-  }
-  .fixed-amt { font-size: 13px; font-weight: 600; color: var(--text); }
-
-  .extra-label {
-    font-size: 11px;
-    color: var(--text3);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 2px 0 10px;
-  }
-
-  .empty-msg {
-    font-size: 13px;
-    color: var(--text3);
-    padding: 8px 0;
-    text-align: center;
-  }
-
-  /* 모바일 */
-  @media (max-width: 480px) {
-    .summary-wrap { padding: 16px 16px 0; gap: 8px; }
-    .content { padding: 12px 16px 0; }
-    .sum-val { font-size: 14px; }
-    .add-row { flex-wrap: wrap; }
-    .add-note { min-width: 0; }
-  }
+/* ── 모바일 ── */
+@media (max-width: 700px) {
+  .header { position: static; }
+  .body { flex-direction: column; margin-top: 0; }
+  .sidebar { position: static; width: 100%; border-right: none; border-bottom: 1px solid var(--line); overflow: visible; }
+  .main { margin-left: 0; }
+  .sum-row { display: none; }
+}
 </style>
 </head>
 <body>
-
-<div class="top-bar">
-  <div class="top-title">💰 월 지출 관리</div>
+<div class="header">
+  <span class="header-title">월 지출 관리</span>
   <div class="month-nav">
     <button class="nav-btn" id="prev-btn">&#8249;</button>
     <span class="month-label" id="month-label"></span>
     <button class="nav-btn" id="next-btn">&#8250;</button>
   </div>
-</div>
-
-<div class="summary-wrap">
-  <div class="sum-card">
-    <div class="sum-label">총 예산</div>
-    <div class="sum-val" id="total-budget">—</div>
-  </div>
-  <div class="sum-card">
-    <div class="sum-label">총 지출</div>
-    <div class="sum-val" id="total-spent">—</div>
-  </div>
-  <div class="sum-card">
-    <div class="sum-label">잔여</div>
-    <div class="sum-val" id="total-remain">—</div>
+  <div class="sum-row">
+    <div class="sum-chip"><span class="sum-chip-label">총 예산</span><span class="sum-chip-val" id="total-budget">—</span></div>
+    <div class="sum-chip"><span class="sum-chip-label">총 지출</span><span class="sum-chip-val" id="total-spent">—</span></div>
+    <div class="sum-chip"><span class="sum-chip-label">잔여</span><span class="sum-chip-val" id="total-remain">—</span></div>
   </div>
 </div>
 
-<div class="content" id="content"></div>
+<div class="body">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main"></div>
+</div>
 
 <script>
 const MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-let openCats = new Set(['fixed']);
+let openCats = new Set(['fixed','__todos__']);
+let openForms = new Set();
+let editingFixed = null;
 
-const CATEGORIES = [
-  {
-    id: 'fixed', icon: '🔒', name: '고정비', budget: 333257, type: 'fixed',
-    section: '고정비',
-    items: [
-      { name: 'ChatGPT', amount: 33000 },
-      { name: '미드저니', amount: 13800 },
-      { name: '노션', amount: 40000 },
-      { name: '어도비', amount: 46782 },
-      { name: '마이크로소프트', amount: 17245 },
-      { name: '통신비', amount: 47900 },
-      { name: '보험료', amount: 114530 },
-      { name: '기쁨나눔재단', amount: 20000 },
-    ]
-  },
-  { id: 'grocery',   icon: '🛒', name: '장보기',   budget: 120000, type: 'entry', section: '생활비' },
-  { id: 'food',      icon: '🍜', name: '기타식비', budget: 80000,  type: 'entry' },
-  { id: 'transport', icon: '🚌', name: '교통비',   budget: 150000, type: 'entry' },
-  { id: 'beauty',    icon: '💄', name: '화장품',   budget: 50000,  type: 'entry' },
-  { id: 'medical',   icon: '💊', name: '의료비',   budget: 30000,  type: 'entry' },
-  { id: 'eating',    icon: '🍽️', name: '외식비',   budget: 0,      type: 'entry', section: '여유자금', extra: true },
-  { id: 'leisure',   icon: '🎮', name: '여가·취미',budget: 0,      type: 'entry', extra: true },
-  { id: 'event',     icon: '🎁', name: '경조사',   budget: 0,      type: 'entry', extra: true },
+const DEFAULT_FIXED = [
+  { name: 'ChatGPT',      tag: '인터넷 구독', amount: 33000 },
+  { name: '미드저니',     tag: '인터넷 구독', amount: 13800 },
+  { name: '노션',         tag: '인터넷 구독', amount: 40000 },
+  { name: '어도비',       tag: '인터넷 구독', amount: 46782 },
+  { name: '마이크로소프트', tag: '인터넷 구독', amount: 17245 },
+  { name: '통신비',       tag: '생활',        amount: 47900 },
+  { name: '보험료',       tag: '보험',        amount: 114530 },
+  { name: '기쁨나눔재단', tag: '기부',        amount: 20000 },
 ];
 
-function storageKey() { return `budget_${currentYear}_${currentMonth}`; }
+const RIGHT_CATS = [
+  { id: 'grocery',   name: '장보기',   budget: 120000, section: '생활비' },
+  { id: 'food',      name: '기타식비', budget: 80000  },
+  { id: 'transport', name: '교통비',   budget: 150000 },
+  { id: 'beauty',    name: '화장품',   budget: 50000  },
+  { id: 'medical',   name: '의료비',   budget: 30000  },
+  { id: 'eating',    name: '외식비',   budget: 0, section: '여유자금', extra: true },
+  { id: 'leisure',   name: '여가·취미',budget: 0, extra: true },
+  { id: 'event',     name: '경조사',   budget: 0, extra: true },
+];
 
+function storageKey() { return `budget2_${currentYear}_${currentMonth}`; }
 function loadData() {
-  try {
-    const s = localStorage.getItem(storageKey());
-    return s ? JSON.parse(s) : {};
-  } catch(e) { return {}; }
+  try { const s = localStorage.getItem(storageKey()); return s ? JSON.parse(s) : {}; }
+  catch(e) { return {}; }
 }
+function saveData(d) { try { localStorage.setItem(storageKey(), JSON.stringify(d)); } catch(e) {} }
+function fmt(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
 
-function saveData(d) {
-  try { localStorage.setItem(storageKey(), JSON.stringify(d)); } catch(e) {}
-}
-
-function fmt(n) {
-  return Math.round(n).toLocaleString('ko-KR') + '원';
-}
-
-function getSpent(cat, data) {
-  if (cat.type === 'fixed') {
-    return cat.items.reduce((s, i) => s + i.amount, 0);
-  }
-  const cd = data[cat.id];
-  return cd && cd.entries ? cd.entries.reduce((s, e) => s + (e.amount || 0), 0) : 0;
+function getFixedItems(data) {
+  return data['__fixed__'] || DEFAULT_FIXED;
 }
 
 function render() {
   const data = loadData();
-  const content = document.getElementById('content');
-  let html = '';
-  let totalBudget = 0, totalSpent = 0;
-  let lastSection = null;
+  const fixedItems = getFixedItems(data);
+  const fixedTotal = fixedItems.reduce((s, i) => s + i.amount, 0);
 
-  CATEGORIES.forEach(cat => {
-    const spent = getSpent(cat, data);
-    const budget = cat.budget;
-    totalBudget += budget;
-    totalSpent += spent;
-    const remain = budget - spent;
-    const pct = budget > 0 ? Math.min(100, Math.round(spent / budget * 100)) : 0;
-    const open = openCats.has(cat.id);
+  let totalBudget = fixedTotal;
+  let totalSpent = fixedTotal;
 
-    if (cat.section && cat.section !== lastSection) {
-      html += `<div class="section-label">${cat.section}</div>`;
-      lastSection = cat.section;
-    }
-
-    let remainClass = 'ok';
-    let fillClass = 'fill-ok';
-    if (budget > 0) {
-      if (pct >= 90) { remainClass = 'danger'; fillClass = 'fill-danger'; }
-      else if (pct >= 70) { remainClass = 'warn'; fillClass = 'fill-warn'; }
-    } else {
-      remainClass = 'neutral';
-    }
-
-    let remainText = budget > 0
-      ? `<div class="cat-budget-lbl">예산 ${fmt(budget)}</div><div class="cat-remain ${remainClass}">${remain >= 0 ? '+' : ''}${fmt(remain)}</div>`
-      : `<div class="cat-remain neutral">${fmt(spent)} 지출</div>`;
-
-    let bodyHtml = '';
-
-    if (cat.type === 'fixed') {
-      const cd = data[cat.id] || {};
-      const checks = cd.checks || {};
-      let rows = cat.items.map((item, i) => {
-        const checked = checks[i] || false;
-        return `<div class="fixed-item" onclick="toggleFixed('${cat.id}',${i})">
-          <div class="fixed-check ${checked ? 'checked' : ''}"></div>
-          <span class="fixed-name ${checked ? 'done' : ''}">${item.name}</span>
-          <span class="fixed-amt">${fmt(item.amount)}</span>
-        </div>`;
-      }).join('');
-      bodyHtml = `<div class="cat-body ${open ? 'open' : ''}" id="body-${cat.id}">${rows}</div>`;
-
-    } else {
-      const cd = data[cat.id] || {};
-      const entries = cd.entries || [];
-      let entriesHtml = entries.length === 0
-        ? `<div class="empty-msg">아직 지출 내역이 없어요</div>`
-        : entries.map((e, i) =>
-            `<div class="entry-row">
-              <span class="entry-note">${e.note || '—'}</span>
-              <span class="entry-amount">${fmt(e.amount)}</span>
-              <button class="entry-del" onclick="delEntry('${cat.id}',${i})" title="삭제">×</button>
-            </div>`
-          ).join('');
-
-      let extraNote = cat.extra ? `<div class="extra-label">여유자금 항목</div>` : '';
-
-      bodyHtml = `<div class="cat-body ${open ? 'open' : ''}" id="body-${cat.id}">
-        ${extraNote}
-        <div class="entry-list">${entriesHtml}</div>
-        <div class="add-row">
-          <input class="add-note" type="text" placeholder="메모 (선택)" id="note-${cat.id}">
-          <input class="add-amount" type="number" placeholder="금액" id="amt-${cat.id}" min="0">
-          <button class="add-btn" onclick="addEntry('${cat.id}')">추가</button>
-        </div>
-      </div>`;
-    }
-
-    html += `<div class="cat-card">
-      <div class="cat-header" onclick="toggleCat('${cat.id}')">
-        <span class="cat-icon">${cat.icon}</span>
-        <span class="cat-name">${cat.name}</span>
-        <div class="cat-right">${remainText}</div>
-        <span class="chevron ${open ? 'open' : ''}">▼</span>
-      </div>
-      ${budget > 0 ? `<div class="progress-bar"><div class="progress-fill ${fillClass}" style="width:${pct}%"></div></div>` : ''}
-      ${bodyHtml}
-    </div>`;
+  RIGHT_CATS.forEach(cat => {
+    totalBudget += cat.budget;
+    const cd = data[cat.id];
+    totalSpent += cd && cd.entries ? cd.entries.reduce((s, e) => s + e.amount, 0) : 0;
   });
 
-  content.innerHTML = html;
-
-  const totalRemain = totalBudget - totalSpent;
   document.getElementById('total-budget').textContent = fmt(totalBudget);
   document.getElementById('total-spent').textContent = fmt(totalSpent);
   const remEl = document.getElementById('total-remain');
-  remEl.textContent = fmt(totalRemain);
-  remEl.className = 'sum-val ' + (totalRemain < 0 ? 'danger' : 'ok');
+  const remain = totalBudget - totalSpent;
+  remEl.textContent = fmt(remain);
+  remEl.className = 'sum-chip-val' + (remain < 0 ? ' neg' : '');
+
+  renderSidebar(data, fixedItems, fixedTotal);
+  renderMain(data);
 }
 
+function renderSidebar(data, fixedItems, fixedTotal) {
+  const fixedOpen = openCats.has('fixed');
+  let html = '';
+
+  // 고정비 섹션 헤더
+  html += `<div class="cat-header-row" onclick="toggleCat('fixed')">
+    <span class="cat-header-name">고정비</span>
+    <span class="cat-header-remain">${fmt(fixedTotal)}</span>
+    <span class="chevron ${fixedOpen ? 'open' : ''}">▼</span>
+  </div>`;
+
+  if (fixedOpen) {
+    fixedItems.forEach((item, i) => {
+      html += `<div class="row">
+        <span class="row-label">${item.name}${item.tag ? `<span class="row-tag"># ${item.tag}</span>` : ''}</span>
+        <span class="row-amount">${fmt(item.amount)}</span>
+        <div class="row-action">
+          <button class="btn-ghost" onclick="startEditFixed(${i})">수정</button>
+        </div>
+      </div>`;
+
+      if (editingFixed === i) {
+        html += `<div class="fixed-edit-form open" id="fixed-edit-${i}">
+          <input class="fixed-edit-input name" type="text" placeholder="항목명" id="fe-name-${i}" value="${item.name}">
+          <input class="fixed-edit-input tag" type="text" placeholder="# 태그" id="fe-tag-${i}" value="${item.tag || ''}">
+          <input class="fixed-edit-input amt" type="number" placeholder="금액" id="fe-amt-${i}" value="${item.amount}">
+          <button class="btn-solid" onclick="saveFixedItem(${i})">저장</button>
+          <button class="btn-ghost" onclick="cancelEditFixed()">취소</button>
+        </div>`;
+      }
+    });
+
+    // 새 고정비 추가
+    html += `<div class="row">
+      <button class="btn-ghost" onclick="addFixedItem()" style="width:100%;text-align:left;border-radius:0;border:none;border-top:1px dashed var(--line);padding:12px 0;color:var(--text3)">+ 항목 추가</button>
+    </div>`;
+  }
+
+  // 투두 섹션
+  const todos = data['__todos__'] || [];
+  const todoOpen = openCats.has('__todos__');
+  const done = todos.filter(t => t.checked).length;
+
+  html += `<div class="cat-header-row" onclick="toggleCat('__todos__')" style="margin-top:0;border-top: 1px solid var(--line)">
+    <span class="cat-header-name">이번 달 할 일</span>
+    <span class="cat-header-budget">${done}/${todos.length}</span>
+    <span class="chevron ${todoOpen ? 'open' : ''}">▼</span>
+  </div>`;
+
+  if (todoOpen) {
+    if (todos.length === 0) {
+      html += `<div class="empty-row">할 일을 추가해보세요</div>`;
+    } else {
+      todos.forEach((t, i) => {
+        html += `<div class="todo-row" onclick="toggleTodo(${i})">
+          <div class="todo-circle ${t.checked ? 'checked' : ''}"></div>
+          <span class="todo-text ${t.checked ? 'done' : ''}">${t.text}</span>
+          <button class="todo-del" onclick="event.stopPropagation();delTodo(${i})">×</button>
+        </div>`;
+      });
+    }
+    html += `<div class="add-form open" style="display:flex;gap:6px;padding:12px 28px;border-bottom:1px solid var(--line)">
+      <input class="add-input" style="flex:1" type="text" placeholder="할 일 입력" id="todo-input">
+      <button class="btn-solid" onclick="addTodo()">추가</button>
+    </div>`;
+  }
+
+  document.getElementById('sidebar').innerHTML = html;
+}
+
+function renderMain(data) {
+  let html = '';
+  let lastSection = null;
+
+  RIGHT_CATS.forEach(cat => {
+    const entries = (data[cat.id] || {}).entries || [];
+    const spent = entries.reduce((s, e) => s + e.amount, 0);
+    const budget = cat.budget;
+    const remain = budget - spent;
+    const pct = budget > 0 ? Math.min(100, Math.round(spent / budget * 100)) : 0;
+    const open = openCats.has(cat.id);
+    const formOpen = openForms.has(cat.id);
+
+    if (cat.section && cat.section !== lastSection) {
+      html += `<div class="section-header">
+        <span class="section-title">${cat.section}</span>
+      </div>`;
+      lastSection = cat.section;
+    }
+
+    let remainClass = pct >= 90 ? 'over' : '';
+    let fillClass = pct >= 90 ? 'over' : pct >= 70 ? 'warn' : '';
+
+    html += `<div class="cat-header-row" onclick="toggleCat('${cat.id}')">
+      <span class="cat-header-name">${cat.name}</span>
+      ${budget > 0
+        ? `<span class="cat-header-budget">예산 ${fmt(budget)}</span><span class="cat-header-remain ${remainClass}">${remain >= 0 ? '+' : ''}${fmt(remain)}</span>`
+        : `<span class="cat-header-remain">${fmt(spent)} 지출</span>`
+      }
+      <span class="chevron ${open ? 'open' : ''}">▼</span>
+    </div>`;
+
+    if (budget > 0) {
+      html += `<div class="progress-line"><div class="progress-fill ${fillClass}" style="width:${pct}%"></div></div>`;
+    }
+
+    if (open) {
+      if (entries.length === 0) {
+        html += `<div class="empty-row">아직 지출 내역이 없어요</div>`;
+      } else {
+        entries.forEach((e, i) => {
+          html += `<div class="entry-row">
+            <div style="flex:1">
+              <div class="entry-name">${e.name}</div>
+              ${e.memo ? `<div class="entry-memo">${e.memo}</div>` : ''}
+            </div>
+            <span class="entry-amount">${fmt(e.amount)}</span>
+            <button class="entry-del" onclick="delEntry('${cat.id}',${i})">×</button>
+          </div>`;
+        });
+      }
+
+      // 입력 폼 토글 버튼
+      html += `<div style="padding:10px 28px;border-bottom:1px solid var(--line)">
+        <button class="btn-ghost" onclick="toggleForm('${cat.id}')">+ 지출 추가</button>
+      </div>`;
+
+      if (formOpen) {
+        html += `<div class="add-form open">
+          <div class="add-form-grid">
+            <input class="add-input" type="text" placeholder="지출명 (필수)" id="name-${cat.id}">
+            <input class="add-input right" type="number" placeholder="금액 (필수)" id="amt-${cat.id}" min="0">
+          </div>
+          <div class="add-form-row">
+            <input class="add-input" type="text" placeholder="기타 노트 (선택)" id="memo-${cat.id}">
+            <button class="btn-solid" onclick="addEntry('${cat.id}')">추가</button>
+          </div>
+        </div>`;
+      }
+    }
+  });
+
+  document.getElementById('main').innerHTML = html;
+}
+
+// ── 이벤트 핸들러 ──
 function toggleCat(id) {
-  if (openCats.has(id)) openCats.delete(id);
-  else openCats.add(id);
+  if (openCats.has(id)) openCats.delete(id); else openCats.add(id);
   render();
 }
-
-function toggleFixed(catId, idx) {
-  const data = loadData();
-  if (!data[catId]) data[catId] = {};
-  if (!data[catId].checks) data[catId].checks = {};
-  data[catId].checks[idx] = !data[catId].checks[idx];
-  saveData(data);
+function toggleForm(id) {
+  if (openForms.has(id)) openForms.delete(id); else openForms.add(id);
   render();
+  const el = document.getElementById('name-' + id);
+  if (el) el.focus();
 }
 
 function addEntry(catId) {
-  const noteEl = document.getElementById('note-' + catId);
+  const nameEl = document.getElementById('name-' + catId);
   const amtEl = document.getElementById('amt-' + catId);
-  const note = noteEl.value.trim();
+  const memoEl = document.getElementById('memo-' + catId);
+  const name = nameEl.value.trim();
   const amount = parseInt(amtEl.value);
+  const memo = memoEl ? memoEl.value.trim() : '';
+  if (!name) { nameEl.focus(); return; }
   if (!amount || amount <= 0) { amtEl.focus(); return; }
   const data = loadData();
   if (!data[catId]) data[catId] = {};
   if (!data[catId].entries) data[catId].entries = [];
-  data[catId].entries.push({ note, amount });
+  data[catId].entries.push({ name, amount, memo });
   saveData(data);
-  openCats.add(catId);
+  openForms.delete(catId);
   render();
-  const newAmt = document.getElementById('amt-' + catId);
-  const newNote = document.getElementById('note-' + catId);
-  if (newNote) newNote.focus();
 }
 
 function delEntry(catId, idx) {
-  if (!confirm('이 항목을 삭제할까요?')) return;
+  if (!confirm('삭제할까요?')) return;
   const data = loadData();
-  if (data[catId] && data[catId].entries) {
-    data[catId].entries.splice(idx, 1);
-    saveData(data);
-    render();
-  }
+  data[catId].entries.splice(idx, 1);
+  saveData(data); render();
+}
+
+function startEditFixed(idx) { editingFixed = idx; render(); setTimeout(() => { const el = document.getElementById('fe-name-' + idx); if(el) el.focus(); }, 0); }
+function cancelEditFixed() { editingFixed = null; render(); }
+function saveFixedItem(idx) {
+  const name = document.getElementById('fe-name-' + idx).value.trim();
+  const tag = document.getElementById('fe-tag-' + idx).value.trim();
+  const amount = parseInt(document.getElementById('fe-amt-' + idx).value);
+  if (!name || !amount) return;
+  const data = loadData();
+  const items = getFixedItems(data);
+  items[idx] = { name, tag, amount };
+  data['__fixed__'] = items;
+  saveData(data); editingFixed = null; render();
+}
+function addFixedItem() {
+  const data = loadData();
+  const items = getFixedItems(data);
+  items.push({ name: '새 항목', tag: '', amount: 0 });
+  data['__fixed__'] = items;
+  saveData(data);
+  editingFixed = items.length - 1;
+  openCats.add('fixed');
+  render();
+  setTimeout(() => { const el = document.getElementById('fe-name-' + (items.length - 1)); if(el) el.focus(); }, 0);
+}
+
+function toggleTodo(idx) {
+  const data = loadData();
+  if (!data['__todos__']) data['__todos__'] = [];
+  data['__todos__'][idx].checked = !data['__todos__'][idx].checked;
+  saveData(data); render();
+}
+function addTodo() {
+  const input = document.getElementById('todo-input');
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+  const data = loadData();
+  if (!data['__todos__']) data['__todos__'] = [];
+  data['__todos__'].push({ text, checked: false });
+  saveData(data); openCats.add('__todos__'); render();
+  setTimeout(() => { const el = document.getElementById('todo-input'); if(el) el.focus(); }, 0);
+}
+function delTodo(idx) {
+  if (!confirm('삭제할까요?')) return;
+  const data = loadData();
+  data['__todos__'].splice(idx, 1);
+  saveData(data); render();
 }
 
 function updateMonth() {
   document.getElementById('month-label').textContent = `${currentYear}년 ${MONTHS[currentMonth]}`;
   render();
 }
-
 document.getElementById('prev-btn').onclick = () => {
-  if (currentMonth === 0) { currentMonth = 11; currentYear--; }
-  else currentMonth--;
+  if (currentMonth === 0) { currentMonth = 11; currentYear--; } else currentMonth--;
   updateMonth();
 };
 document.getElementById('next-btn').onclick = () => {
-  if (currentMonth === 11) { currentMonth = 0; currentYear++; }
-  else currentMonth++;
+  if (currentMonth === 11) { currentMonth = 0; currentYear++; } else currentMonth++;
   updateMonth();
 };
 
